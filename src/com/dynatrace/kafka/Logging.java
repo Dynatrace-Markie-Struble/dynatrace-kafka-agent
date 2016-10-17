@@ -94,8 +94,8 @@ public final class Logging {
 		if (level == null) {
 			level = Level.INFO;
 		}
-		if (true || level.includes(LEVEL)) {
-			System.out.println("[" + Thread.currentThread().getName() + "] [DYNATRACE-COMERICA-AGENT] [" + level.name() + "] " + message);
+		if (level.includes(LEVEL)) {
+			System.out.println("[" + Thread.currentThread().getName() + "] [DYNATRACE-KAFKA-AGENT] [" + level.name() + "] " + message);
 		}
 	}
 
