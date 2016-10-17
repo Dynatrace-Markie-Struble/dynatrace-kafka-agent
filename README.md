@@ -18,3 +18,9 @@ This solution utilizes the Dynatrace ADK for Java in order to change that.
   - The following instructions assume that a folder ```/opt/dynatrace-kafka-agent``` contains ```dynatrace-kafka-agent.jar```
 * The Kafka Agent needs to be specified via JVM Arguments *before* the ```–agentpath``` Argument for the dynaTrace Agent
   - Example for Linux: ```java -javaagent:/opt/dynatrace-kafka-agent/dynatrace-kafka-agent.jar -agentpath:/opt/dynatrace-6.2/agent/lib64/libdtagent.so=name=<agentname>```
+  
+## Restrictions
+Clients sending data to Kafka are required to use ```org.apache.kafka.clients.producer.KafkaProducer.send(...)``` in order to benefit from this solution.
+Clients receiving data from Kafka are required to use ```org.apache.kafka.clients.consumer.KafkaConsumer.poll(..)``` and iterate over the resulting ConsumerRecords.
+Because the solution is utilizing already existing functionality for MQ Series, the intermediate nodes within the produced PurePaths are falsly pointing out MQ Series traffic.
+The benefit of that approach is that the user configurable MQ Series Entry Point Sensor can get utilized in order to continue client side PurePaths after polling for Consumer Records.
