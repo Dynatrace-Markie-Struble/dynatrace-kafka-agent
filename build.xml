@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="publish" name="dynatrace-kafka-agent">
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
+    <target name="publish">
+    	<delete file="${dir.jarfile}/${ant.project.name}.jar" failonerror="false" />
+        <jar destfile="${dir.jarfile}/${ant.project.name}.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+            	<attribute name="Premain-Class" value="com.dynatrace.kafka.KafkaJavaAgent"/>
+            	<attribute name="Agent-Class" value="com.dynatrace.kafka.KafkaJavaAgent"/>
+            	<attribute name="Main-Class" value="com.dynatrace.kafka.KafkaJavaAgent"/>
+            	<attribute name="Can-Retransform-Classes" value="true"/>
+            	<attribute name="Can-Redefine-Classes" value="true"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.jarfile}">
+            	<include name=".classpath" />
+            	<include name=".project" />
+            	<include name="build.xml" />
+            	<include name=".settings/*" />
+            	<include name="lib/*" />
+            	<include name="src/**/*.java" />
+        	</fileset>
+            <fileset dir="${dir.jarfile}/bin">
+            	<exclude name="org/apache/kafka/clients/consumer/ConsumerRecord.class" />
+            	<exclude name="org/apache/kafka/clients/producer/Callback.class" />
+            	<exclude name="org/apache/kafka/clients/producer/ProducerRecord.class" />
+            	<exclude name="org/apache/kafka/clients/producer/RecordMetadata.class" />
+            	<exclude name="org/apache/kafka/clients/producer/MessageAndMetadata.class" />
+        	</fileset>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/javassist.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/dynatrace-adk-6.2.0.1147.jar"/>
+        </jar>
+    </target>
+</project>
