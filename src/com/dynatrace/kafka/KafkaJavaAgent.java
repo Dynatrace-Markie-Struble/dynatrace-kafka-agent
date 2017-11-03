@@ -24,21 +24,21 @@ public class KafkaJavaAgent extends TransformationHelper implements ClassFileTra
 		System.out.println("  * Copy this file onto the host where WLP is getting launched into a folder of your choice");
 		System.out.println("    - Later on this folder will be referenced as <AGENT_HOME>");
 		System.out.println("    - Save yourself the hassle and choose a folder/path without white spaces");
-		System.out.println("  * Ensure that the user running WLP is allowed to READ dynatrace-comerica-agent.jar file");
+		System.out.println("  * Ensure that the user running WLP is allowed to READ dynatrace-kafka-agent.jar file");
 		System.out.println("  * Add the following line to file <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
 		System.out.println("    (If that file doesn't exist, you need to create it)");
 		System.out.println("    (<WLP_HOME> is the installation folder of your WebSphere Liberty Profile Server)");
 		System.out.println("    (<SERVER_NAME> is the sub folder of the Server Instance you want to add this Java Agent to)");
-		System.out.println("      -javaagent:<AGENT_HOME>/dynatrace-comerica-agent.jar");
+		System.out.println("      -javaagent:<AGENT_HOME>/dynatrace-kafka-agent.jar");
 		System.out.println("  * In case jvm.options already exists and contains the -agentpath JVM argument for the Dynatrace Agent, make sure that -javaagent is listed BEFORE -agentpath");
 		System.out.println("  * Start your WLP Server Instance");
 		System.out.println();
 		System.out.println("Troubleshooting (enable log output to stdout):");
-		System.out.println("  * Turn on all log output by adding -Dcom.dynatrace.comerica.agent.loglevel=FINE to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
-		System.out.println("  * Reduce log output to Class Transformation, Warnings and Errors by adding -Dcom.dynatrace.comerica.agent.loglevel=INFO to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
-		System.out.println("  * Reduce log output to Warnings and Errors by adding -Dcom.dynatrace.comerica.agent.loglevel=WARNING to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options (default setting)");
-		System.out.println("  * Reduce log output to Errors by adding -Dcom.dynatrace.comerica.agent.loglevel=ERROR to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
-		System.out.println("  * Turn on all log output by adding -Dcom.dynatrace.comerica.agent.loglevel=NONE to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
+		System.out.println("  * Turn on all log output by adding -Dcom.dynatrace.kafka.agent.loglevel=FINE to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
+		System.out.println("  * Reduce log output to Class Transformation, Warnings and Errors by adding -Dcom.dynatrace.kafka.agent.loglevel=INFO to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
+		System.out.println("  * Reduce log output to Warnings and Errors by adding -Dcom.dynatrace.kafka.agent.loglevel=WARNING to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options (default setting)");
+		System.out.println("  * Reduce log output to Errors by adding -Dcom.dynatrace.kafka.agent.loglevel=ERROR to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
+		System.out.println("  * Turn on all log output by adding -Dcom.dynatrace.kafka.agent.loglevel=NONE to <WLP_HOME>/wlp/usr/servers/<SERVER_NAME>/jvm.options");
 		System.out.println();
 		System.out.println("Development:");
 		System.out.println("  * This JAR file contains all required source files for modifying it further");
@@ -63,39 +63,15 @@ public class KafkaJavaAgent extends TransformationHelper implements ClassFileTra
      * <ul>
      * <li>org/eclipse/osgi/internal/loader/EquinoxClassLoader</li>
      * <li>org/eclipse/osgi/internal/loader/ModuleClassLoader</li>
-     * <li>com/comerica/pci/isoconverter/integration/IsoRestClient</li>
      * </ul>
      * It might be of interest to also add {@code com.ibm.ws.webcontainer.servlet.ServletWrapper} here but
      * this Agent actually was NECESSARY because a Class File Transformer somehow is never getting passed
      * the byte code of that class. Therefore until further notice not necessary.<br />
-     * <br />
-     * {@code com/comerica/pci/isoconverter/integration/IsoRestClient} on the other hand apparently IS
-     * getting handed over to this Class Transformer (although it also packaged up inside an EAR). 
      */
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] buffer) throws IllegalClassFormatException {
-		if (className.equals("com/comerica/pci/isoconverter/integration/IsoRestClient")) {
-			try {
-				final ClassPool classPool = ClassPool.getDefault();
-				
-				Class<?> clazzServletConfig = loader.loadClass("com.sun.jersey.api.client.ClientResponse");
-				classPool.insertClassPath(new ClassClassPath(clazzServletConfig));
-				buffer = EquinoxClassLoaderHelper.transformIsoRestCient(classPool, buffer);
-			} catch (Throwable t) {
-				Logging.error("interception of loading of com.ibm.ws.webcontainer.servlet.ServletWrapper failed", t);
-			}
-//		} else if (className.equals("org/apache/kafka/common/record/Record")) {
-//			try {
-//				final ClassPool classPool = ClassPool.getDefault();
-//				
-//				Class<?> clazzCrc32 = loader.loadClass("kafka.message.Message");
-//				classPool.insertClassPath(new ClassClassPath(clazzCrc32));
-//				buffer = EquinoxClassLoaderHelper.transformKafkaRecord(classPool, buffer);
-//			} catch (Throwable t) {
-//				Logging.error("interception of loading of com.ibm.ws.webcontainer.servlet.ServletWrapper failed", t);
-//			} 
-		} else if (className.equals("kafka/message/MessageAndOffset")) {
+		if (className.equals("kafka/message/MessageAndOffset")) {
 			try {
 				final ClassPool classPool = ClassPool.getDefault();
 				

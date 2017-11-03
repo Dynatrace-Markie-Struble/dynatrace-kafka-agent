@@ -1,7 +1,7 @@
-Manifest-Version: 1.0
-Premain-Class: com.dynatrace.comerica.ComericaJavaAgent
-Agent-Class: com.dynatrace.comerica.ComericaJavaAgent
-Main-Class: com.dynatrace.comerica.ComericaJavaAgent
+Manifest-Version: 1.0.1
+Premain-Class: com.dynatrace.kafka.KafkaJavaAgent
+Agent-Class: com.dynatrace.kafka.KafkaJavaAgent
+Main-Class: com.dynatrace.kafka.KafkaJavaAgent
 Can-Retransform-Classes: true
 Can-Redefine-Classes: true
 Class-Path: .
